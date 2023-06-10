@@ -2,6 +2,7 @@
 using Microsoft.Data.SqlClient;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 
 public class Registration
@@ -31,6 +32,10 @@ public class Registration
             if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(email))
             {
                 Console.WriteLine("Username, password, and email cannot be null or empty. Please try again.");
+            }
+            else if (!IsValidEmail(email))
+            {
+                Console.WriteLine("Invalid email format. Please enter a valid email address.");
             }
 
         } while (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(email));
@@ -86,6 +91,12 @@ public class Registration
                     }
                 }
             }
+    }
+    private bool IsValidEmail(string email)
+    {
+        // Email validation using regular expression
+        string pattern = @"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$";
+        return Regex.IsMatch(email, pattern);
     }
     private string HidePasswordInput()
     {
