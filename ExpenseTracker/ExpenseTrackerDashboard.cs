@@ -8,9 +8,16 @@ namespace ExpenseTracker
 {
     public class ExpenseTrackerDashboard
     {
+        private readonly string connectionString;
+
+        public ExpenseTrackerDashboard(string connectionString)
+        {
+            this.connectionString = connectionString;
+        }
         public void DisplayDashboard(User user)
         {
-            Console.WriteLine($"Welcome, {user.Username}!");
+            Console.Clear();
+            Console.WriteLine($"Welcome, {user.Username}, {user.Id}!");
             Console.WriteLine("Expense Tracker Dashboard");
             Console.WriteLine("=========================");
             Console.WriteLine("1. View Expenses");
@@ -31,14 +38,16 @@ namespace ExpenseTracker
                     Console.WriteLine("Invalid choice. Please try again.");
                 }
             } while (!isValidChoice || choice < 1 || choice > 5);
+
+            var viewExpenses = new ViewExpenses(connectionString);
+            var addExpenses = new AddExpenses(connectionString);
+
             switch (choice)
             {
                 case 1:
-                    var viewExpenses = new ViewExpenses();
                     viewExpenses.DisplayExpenses(user);
                     break;
                 case 2:
-                    var addExpenses = new AddExpenses();
                     addExpenses.AddExpense(user);
                     break;
                 case 3:
