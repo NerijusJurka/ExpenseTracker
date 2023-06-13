@@ -17,7 +17,7 @@ namespace ExpenseTracker
         }
         public void DisplayExpenses(User user)
         {
-
+            Console.Clear();
             List<Expense> expenses = RetrieveExpenses(user);
 
             Console.WriteLine(user.Id);
@@ -38,8 +38,12 @@ namespace ExpenseTracker
                 Console.WriteLine($"Date: {expense.Date}");
                 Console.WriteLine("-------------------");
             }
+            Console.WriteLine("Press any key to go back to the main menu.");
+            Console.ReadKey();
+            var expenseTrackerDashboard = new ExpenseTrackerDashboard(connectionString);
+            expenseTrackerDashboard.DisplayDashboard(user);
         }
-        private List<Expense> RetrieveExpenses(User user)
+        public List<Expense> RetrieveExpenses(User user)
         {
             string query = "SELECT Id, Description, Amount, Date FROM Expenses WHERE UserId = @UserId";
 
