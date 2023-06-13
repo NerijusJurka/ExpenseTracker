@@ -41,6 +41,7 @@ namespace ExpenseTracker
 
             var viewExpenses = new ViewExpenses(connectionString);
             var addExpenses = new AddExpenses(connectionString);
+            var editExpenses = new EditExpenses(connectionString);
 
             switch (choice)
             {
@@ -51,7 +52,7 @@ namespace ExpenseTracker
                     addExpenses.AddExpense(user);
                     break;
                 case 3:
-                    // Call method to edit expense
+                    editExpenses.EditExpense(user);
                     break;
                 case 4:
                     // Call method to delete expense
