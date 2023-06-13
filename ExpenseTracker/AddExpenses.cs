@@ -51,6 +51,11 @@ namespace ExpenseTracker
             // Display the updated list of expenses after saving
             var viewExpenses = new ViewExpenses(connectionString);
             viewExpenses.DisplayExpenses(user);
+
+            Console.WriteLine("Press any key to go back to the main menu.");
+            Console.ReadKey();
+            var expenseTrackerDashboard = new ExpenseTrackerDashboard(connectionString);
+            expenseTrackerDashboard.DisplayDashboard(user);
         }
         private void SaveExpense(Expense expense)
         {
