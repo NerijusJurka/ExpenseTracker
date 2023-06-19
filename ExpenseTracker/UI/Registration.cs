@@ -1,4 +1,4 @@
-﻿using ExpenseTracker.UI;
+﻿using ExpenseTracker;
 using Microsoft.Data.SqlClient;
 using System.Security.Cryptography;
 using System.Text;
