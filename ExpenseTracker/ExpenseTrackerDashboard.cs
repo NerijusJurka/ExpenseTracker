@@ -14,6 +14,7 @@ namespace ExpenseTracker
         {
             this.connectionString = connectionString;
         }
+
         public void DisplayDashboard(User user)
         {
             Console.Clear();
@@ -24,7 +25,10 @@ namespace ExpenseTracker
             Console.WriteLine("2. Add Expense");
             Console.WriteLine("3. Edit Expense");
             Console.WriteLine("4. Delete Expense");
-            Console.WriteLine("5. Logout");
+            Console.WriteLine("5. Add Income");
+            Console.WriteLine("6. View Incomes");
+            Console.WriteLine("7. Logout");
+
             int choice;
             bool isValidChoice = false;
 
@@ -33,16 +37,18 @@ namespace ExpenseTracker
                 Console.Write("Enter your choice: ");
                 isValidChoice = int.TryParse(Console.ReadLine(), out choice);
 
-                if (!isValidChoice || choice < 1 || choice > 5)
+                if (!isValidChoice || choice < 1 || choice > 7)
                 {
                     Console.WriteLine("Invalid choice. Please try again.");
                 }
-            } while (!isValidChoice || choice < 1 || choice > 5);
+            } while (!isValidChoice || choice < 1 || choice > 7);
 
             var viewExpenses = new ViewExpenses(connectionString);
             var addExpenses = new AddExpenses(connectionString);
             var editExpenses = new EditExpenses(connectionString);
             var deleteExpenses = new DeleteExpenses(connectionString);
+            var addIncome = new IncomeManager(connectionString);
+            var viewIncome = new ViewIncomes(connectionString);
             var logOut = new Logout();
 
             switch (choice)
@@ -60,6 +66,12 @@ namespace ExpenseTracker
                     deleteExpenses.DeleteExpense(user);
                     break;
                 case 5:
+                    addIncome.AddIncome(user);
+                    break;
+                case 6:
+                    viewIncome.DisplayIncomes(user);
+                    break;
+                case 7:
                     logOut.PerformLogout();
                     break;
             }
