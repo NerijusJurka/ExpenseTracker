@@ -36,6 +36,8 @@ namespace ExpenseTracker
                 Console.WriteLine($"Description: {expense.Description}");
                 Console.WriteLine($"Amount: {expense.Amount:C}");
                 Console.WriteLine($"Date: {expense.Date}");
+                Console.WriteLine($"Category: {expense.Category}");
+                Console.WriteLine($"Payment Method: {expense.PaymentMethod}");
                 Console.WriteLine("-------------------");
             }
 
@@ -79,7 +81,21 @@ namespace ExpenseTracker
                 expense.Date = newDate;
             }
 
-            string updateQuery = "UPDATE Expenses SET Description = @Description, Amount = @Amount, Date = @Date WHERE Id = @ExpenseId AND UserId = @UserId";
+            Console.WriteLine("Enter the new category (or leave blank to keep the existing one): ");
+            string newCategory = Console.ReadLine();
+            if (!string.IsNullOrEmpty(newCategory))
+            {
+                expense.Category = newCategory;
+            }
+
+            Console.WriteLine("Enter the new payment method (or leave blank to keep the existing one): ");
+            string newPaymentMethod = Console.ReadLine();
+            if (!string.IsNullOrEmpty(newPaymentMethod))
+            {
+                expense.PaymentMethod = newPaymentMethod;
+            }
+
+            string updateQuery = "UPDATE Expenses SET Description = @Description, Amount = @Amount, Date = @Date, Category = @Category, PaymentMethod = @PaymentMethod WHERE Id = @ExpenseId AND UserId = @UserId";
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -88,6 +104,8 @@ namespace ExpenseTracker
                     command.Parameters.AddWithValue("@Description", expense.Description);
                     command.Parameters.AddWithValue("@Amount", expense.Amount);
                     command.Parameters.AddWithValue("@Date", expense.Date);
+                    command.Parameters.AddWithValue("@Category", expense.Category);
+                    command.Parameters.AddWithValue("@PaymentMethod", expense.PaymentMethod);
                     command.Parameters.AddWithValue("@ExpenseId", expense.Id);
                     command.Parameters.AddWithValue("@UserId", user.Id);
 
@@ -111,9 +129,8 @@ namespace ExpenseTracker
                 }
             }
 
-            Console.WriteLine("Expense edited successfully.");
             Console.WriteLine("Redirecting to the main menu...");
-            Thread.Sleep(5000);
+            Thread.Sleep(2000);
 
             var expenseTrackerDashboard = new ExpenseTrackerDashboard(connectionString);
             expenseTrackerDashboard.DisplayDashboard(user);
