@@ -1,4 +1,4 @@
-﻿using ExpenseTracker;
+﻿using ExpenseTracker.UI;
 using Microsoft.Data.SqlClient;
 using System.Security.Cryptography;
 using System.Text;
@@ -41,7 +41,7 @@ public class Registration
         } while (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(email));
         
             // Connection string
-            string connectionString = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\jurka\\source\\repos\\ExpenseTracker\\ExpenseTracker\\Database.mdf;Integrated Security=True";
+            string connectionString = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\jurka\\source\\repos\\ExpenseTracker\\ExpenseTracker\\Data\\Database.mdf;Integrated Security=True";
 
             string tableName = "Users";
             string queryCheckTableExists = $"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{tableName}'";
@@ -128,7 +128,7 @@ public class Registration
     private bool IsUsernameTaken(string username)
     {
         // Connection string
-        string connectionString = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\jurka\\source\\repos\\ExpenseTracker\\ExpenseTracker\\Database.mdf;Integrated Security=True";
+        string connectionString = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\jurka\\source\\repos\\ExpenseTracker\\ExpenseTracker\\Data\\Database.mdf;Integrated Security=True";
 
         string query = "SELECT COUNT(*) FROM Users WHERE Username = @Username";
 

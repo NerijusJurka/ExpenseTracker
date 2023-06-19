@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ExpenseTracker
+namespace ExpenseTracker.UI
 {
     class Program
     {

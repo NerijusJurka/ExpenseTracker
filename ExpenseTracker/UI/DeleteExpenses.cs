@@ -1,11 +1,12 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using ExpenseTracker.Model;
+using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ExpenseTracker
+namespace ExpenseTracker.UI
 {
     public class DeleteExpenses
     {
@@ -54,7 +55,7 @@ namespace ExpenseTracker
             }
             Delete(selectedExpense, user);
         }
-        public void Delete (Expense selectedExpense, User user)
+        public void Delete(Expense selectedExpense, User user)
         {
             string deleteQuery = "DELETE FROM Expenses WHERE Id = @ExpenseId AND UserId = @UserId";
 

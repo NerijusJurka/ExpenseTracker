@@ -1,15 +1,16 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using ExpenseTracker.Model;
+using Microsoft.Data.SqlClient;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace ExpenseTracker
+namespace ExpenseTracker.UI
 {
     public class Login
     {
         public void SignIn(string username, string password)
         {
             // Connection string
-            string connectionString = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\jurka\\source\\repos\\ExpenseTracker\\ExpenseTracker\\Database.mdf;Integrated Security=True";
+            string connectionString = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\jurka\\source\\repos\\ExpenseTracker\\ExpenseTracker\\Data\\Database.mdf;Integrated Security=True";
 
             string query = "SELECT PasswordHash FROM Users WHERE Username = @Username";
 
@@ -70,7 +71,7 @@ namespace ExpenseTracker
         }
         private User GetUserByUsername(string username)
         {
-            string connectionString = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\jurka\\source\\repos\\ExpenseTracker\\ExpenseTracker\\Database.mdf;Integrated Security=True";
+            string connectionString = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\jurka\\source\\repos\\ExpenseTracker\\ExpenseTracker\\Data\\Database.mdf;Integrated Security=True";
 
             string query = "SELECT Id, Username, PasswordHash, Email FROM Users WHERE Username = @Username";
 
