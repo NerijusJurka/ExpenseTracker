@@ -36,15 +36,31 @@ namespace ExpenseTracker
                 Console.Write("Enter expense date (YYYY-MM-DD): ");
             }
 
+            Console.WriteLine("Enter expense category: ");
+            string category = Console.ReadLine();
+
+            Console.WriteLine("Enter payment method: ");
+            string paymentMethod = Console.ReadLine();
+
             Expense expense = new Expense
             {
                 Description = description,
                 Amount = amount,
                 Date = date,
-                UserId = user.Id
+                UserId = user.Id,
+                Category = category,
+                PaymentMethod = paymentMethod
             };
 
-            SaveExpense(expense);
+            try
+            {
+                SaveExpense(expense);
+                Console.WriteLine("Expense added successfully.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error saving expense: {ex.Message}");
+            }
 
             Console.WriteLine("Expense added successfully.");
 
@@ -59,41 +75,45 @@ namespace ExpenseTracker
         }
         private void SaveExpense(Expense expense)
         {
-            string tableName = "Expenses";
-            string queryCheckTableExists = $"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{tableName}'";
-            string queryCreateTable = $"CREATE TABLE {tableName} (Id INT PRIMARY KEY IDENTITY, Description NVARCHAR(100) NOT NULL, Amount DECIMAL(18,2) NOT NULL, Date DATE NOT NULL, UserId INT NOT NULL)";
-
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                using (SqlCommand command = new SqlCommand(queryCheckTableExists, connection))
-                {
-                    try
-                    {
-                        connection.Open();
-                        int tableCount = (int)command.ExecuteScalar();
-                        if (tableCount == 0)
-                        {
-                            command.CommandText = queryCreateTable;
-                            command.ExecuteNonQuery();
-                            
-                            Console.WriteLine("Table created successfully.");
-                        }
+                connection.Open();
 
-                        command.CommandText = "INSERT INTO Expenses (Description, Amount, Date, UserId) VALUES (@Description, @Amount, @Date, @UserId)";
-                        command.Parameters.AddWithValue("@Description", expense.Description);
-                        command.Parameters.AddWithValue("@Amount", expense.Amount);
-                        command.Parameters.AddWithValue("@Date", expense.Date);
-                        command.Parameters.AddWithValue("@UserId", expense.UserId);
-                        command.ExecuteNonQuery();
-                        Console.WriteLine("Expense saved successfully {0}." + expense.UserId);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Error: {ex.Message}");
-                    }
+                if (!IsTableExists(connection, "Expenses"))
+                {
+                    CreateExpensesTable(connection);
+                    Console.WriteLine("Expenses table created successfully.");
+                }
+
+                using (SqlCommand command = new SqlCommand("INSERT INTO Expenses (Description, Amount, Date, UserId, Category, PaymentMethod) VALUES (@Description, @Amount, @Date, @UserId, @Category, @PaymentMethod)", connection))
+                {
+                    command.Parameters.AddWithValue("@Description", expense.Description);
+                    command.Parameters.AddWithValue("@Amount", expense.Amount);
+                    command.Parameters.AddWithValue("@Date", expense.Date);
+                    command.Parameters.AddWithValue("@UserId", expense.UserId);
+                    command.Parameters.AddWithValue("@Category", expense.Category);
+                    command.Parameters.AddWithValue("@PaymentMethod", expense.PaymentMethod);
+
+                    command.ExecuteNonQuery();
+                    Console.WriteLine("Expense saved successfully.");
                 }
             }
+        }
 
+        private bool IsTableExists(SqlConnection connection, string tableName)
+        {
+            using (SqlCommand command = new SqlCommand($"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{tableName}'", connection))
+            {
+                return (int)command.ExecuteScalar() > 0;
+            }
+        }
+
+        private void CreateExpensesTable(SqlConnection connection)
+        {
+            using (SqlCommand command = new SqlCommand("CREATE TABLE Expenses (Id INT PRIMARY KEY IDENTITY, Description NVARCHAR(100) NOT NULL, Amount DECIMAL(18,2) NOT NULL, Date DATE NOT NULL, UserId INT NOT NULL, Category NVARCHAR(50) NOT NULL, PaymentMethod NVARCHAR(50) NOT NULL)", connection))
+            {
+                command.ExecuteNonQuery();
+            }
         }
     }
 }
