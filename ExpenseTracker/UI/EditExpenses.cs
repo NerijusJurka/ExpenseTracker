@@ -1,4 +1,5 @@
-﻿using ExpenseTracker.Model;
+﻿using ExpenseTracker.DataAccess;
+using ExpenseTracker.Model;
 using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ namespace ExpenseTracker.UI
     public class EditExpenses
     {
         private readonly string connectionString;
+        private readonly ExpenseDataAccess expenseDataAccess;
 
         public EditExpenses(string connectionString)
         {
@@ -20,7 +22,7 @@ namespace ExpenseTracker.UI
         {
             Console.Clear();
             var viewExpenses = new ViewExpenses(connectionString);
-            List<Expense> expenses = viewExpenses.RetrieveExpenses(user);
+            List<Expense> expenses = expenseDataAccess.RetrieveExpenses(user);
 
             if (expenses.Count == 0)
             {
