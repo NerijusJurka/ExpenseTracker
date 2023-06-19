@@ -36,16 +36,20 @@ namespace ExpenseTracker
                 Console.WriteLine($"Description: {expense.Description}");
                 Console.WriteLine($"Amount: {expense.Amount:C}");
                 Console.WriteLine($"Date: {expense.Date}");
+                Console.WriteLine($"Category: {expense.Category}");
+                Console.WriteLine($"Payment Method: {expense.PaymentMethod}");
                 Console.WriteLine("-------------------");
             }
+
             Console.WriteLine("Press any key to go back to the main menu.");
             Console.ReadKey();
+
             var expenseTrackerDashboard = new ExpenseTrackerDashboard(connectionString);
             expenseTrackerDashboard.DisplayDashboard(user);
         }
         public List<Expense> RetrieveExpenses(User user)
         {
-            string query = "SELECT Id, Description, Amount, Date FROM Expenses WHERE UserId = @UserId";
+            string query = "SELECT Id, Description, Amount, Date, Category, PaymentMethod FROM Expenses WHERE UserId = @UserId";
 
             List<Expense> expenses = new List<Expense>();
 
@@ -66,6 +70,8 @@ namespace ExpenseTracker
                             string description = (string)reader["Description"];
                             decimal amount = (decimal)reader["Amount"];
                             DateTime date = (DateTime)reader["Date"];
+                            string category = (string)reader["Category"];
+                            string paymentMethod = (string)reader["PaymentMethod"];
 
                             Expense expense = new Expense
                             {
@@ -73,7 +79,9 @@ namespace ExpenseTracker
                                 Description = description,
                                 Amount = amount,
                                 Date = date,
-                                UserId = user.Id
+                                UserId = user.Id,
+                                Category = category,
+                                PaymentMethod = paymentMethod
                             };
 
                             expenses.Add(expense);
