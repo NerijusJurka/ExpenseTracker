@@ -7,50 +7,50 @@ using System.Threading.Tasks;
 
 namespace ExpenseTracker
 {
-    public class ViewExpenses
+    public class ViewIncomes
     {
         private readonly string connectionString;
 
-        public ViewExpenses(string connectionString)
+        public ViewIncomes(string connectionString)
         {
             this.connectionString = connectionString;
         }
-        public void DisplayExpenses(User user)
+
+        public void DisplayIncomes(User user)
         {
             Console.Clear();
-            List<Expense> expenses = RetrieveExpenses(user);
+            List<Income> incomes = RetrieveIncomes(user);
 
-            if (expenses.Count == 0)
+            if (incomes.Count == 0)
             {
-                Console.WriteLine("No expenses found.");
+                Console.WriteLine("No incomes found.");
                 return;
             }
 
-            Console.WriteLine("Expense List");
-            Console.WriteLine("============");
+            Console.WriteLine("Income List");
+            Console.WriteLine("===========");
 
-            foreach (Expense expense in expenses)
+            foreach (Income income in incomes)
             {
-                Console.WriteLine($"ID: {expense.Id}");
-                Console.WriteLine($"Description: {expense.Description}");
-                Console.WriteLine($"Amount: {expense.Amount:C}");
-                Console.WriteLine($"Date: {expense.Date}");
-                Console.WriteLine($"Category: {expense.Category}");
-                Console.WriteLine($"Payment Method: {expense.PaymentMethod}");
+                Console.WriteLine($"ID: {income.Id}");
+                Console.WriteLine($"Description: {income.Description}");
+                Console.WriteLine($"Amount: {income.Amount:C}");
+                Console.WriteLine($"Frequency: {income.Frequency}");
+                Console.WriteLine($"Date: {income.Date}");
                 Console.WriteLine("-------------------");
             }
 
             Console.WriteLine("Press any key to go back to the main menu.");
             Console.ReadKey();
-
             var expenseTrackerDashboard = new ExpenseTrackerDashboard(connectionString);
             expenseTrackerDashboard.DisplayDashboard(user);
         }
-        public List<Expense> RetrieveExpenses(User user)
-        {
-            string query = "SELECT Id, Description, Amount, Date, Category, PaymentMethod FROM Expenses WHERE UserId = @UserId";
 
-            List<Expense> expenses = new List<Expense>();
+        public List<Income> RetrieveIncomes(User user)
+        {
+            string query = "SELECT Id, Description, Amount, Frequency, Date FROM Incomes WHERE UserId = @UserId";
+
+            List<Income> incomes = new List<Income>();
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -65,25 +65,24 @@ namespace ExpenseTracker
 
                         while (reader.Read())
                         {
-                            int expenseId = (int)reader["Id"];
+                            int incomeId = (int)reader["Id"];
                             string description = (string)reader["Description"];
                             decimal amount = (decimal)reader["Amount"];
+                            string frequencyString = (string)reader["Frequency"];
+                            FrequencyType frequency = Enum.Parse<FrequencyType>(frequencyString);
                             DateTime date = (DateTime)reader["Date"];
-                            string category = (string)reader["Category"];
-                            string paymentMethod = (string)reader["PaymentMethod"];
 
-                            Expense expense = new Expense
+                            Income income = new Income
                             {
-                                Id = expenseId,
+                                Id = incomeId,
                                 Description = description,
                                 Amount = amount,
+                                Frequency = frequency,
                                 Date = date,
-                                UserId = user.Id,
-                                Category = category,
-                                PaymentMethod = paymentMethod
+                                UserId = user.Id
                             };
 
-                            expenses.Add(expense);
+                            incomes.Add(income);
                         }
                     }
                     catch (Exception ex)
@@ -93,7 +92,7 @@ namespace ExpenseTracker
                 }
             }
 
-            return expenses;
+            return incomes;
         }
     }
 }
