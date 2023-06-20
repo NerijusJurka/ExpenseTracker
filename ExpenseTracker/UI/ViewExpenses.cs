@@ -88,7 +88,7 @@ namespace ExpenseTracker.UI
             Console.WriteLine("Filtering Menu");
             Console.WriteLine("==============");
             Console.WriteLine("1. Filter by ID");
-            Console.WriteLine("2. Filter by Amount");
+            Console.WriteLine("2. Filter by Amount Range");
             Console.WriteLine("3. Filter by Date");
             Console.WriteLine("4. Filter by Category");
             Console.WriteLine("5. Filter by Payment Method");
@@ -131,21 +131,32 @@ namespace ExpenseTracker.UI
                     }
                     break;
                 case 2:
-                    Console.Write("Enter expense amount: ");
-                    decimal expenseAmount;
-                    if (decimal.TryParse(Console.ReadLine(), out expenseAmount))
+                    Console.Write("Enter minimum amount: ");
+                    decimal minAmount;
+                    if (decimal.TryParse(Console.ReadLine(), out minAmount))
                     {
-                        FilterOptions filterOptions = new FilterOptions
+                        Console.Write("Enter maximum amount: ");
+                        decimal maxAmount;
+                        if (decimal.TryParse(Console.ReadLine(), out maxAmount))
                         {
-                            FilterByAmount = true,
-                            Amount = expenseAmount
-                        };
+                            FilterOptions filterOptions = new FilterOptions
+                            {
+                                FilterByAmountRange = true,
+                                MinAmount = minAmount,
+                                MaxAmount = maxAmount
+                            };
 
-                        ApplyFilteringAndDisplay(expenses, filterOptions, user);
+                            ApplyFilteringAndDisplay(expenses, filterOptions, user);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Invalid maximum amount entered.");
+                            ShowFilteringMenu(user, expenses);
+                        }
                     }
                     else
                     {
-                        Console.WriteLine("Invalid expense amount entered.");
+                        Console.WriteLine("Invalid minimum amount entered.");
                         ShowFilteringMenu(user, expenses);
                     }
                     break;
@@ -204,7 +215,16 @@ namespace ExpenseTracker.UI
         private void ApplyFilteringAndDisplay(List<Expense> expenses, FilterOptions filterOptions, User user)
         {
             ExpenseFilter expenseFilter = new ExpenseFilter();
-            List<Expense> filteredExpenses = expenseFilter.FilterExpenses(expenses, filterOptions);
+            List<Expense> filteredExpenses;
+
+            if (filterOptions.FilterByAmountRange)
+            {
+                filteredExpenses = expenseFilter.FilterExpenses(expenses, filterOptions);
+            }
+            else
+            {
+                filteredExpenses = expenseFilter.FilterExpenses(expenses, filterOptions);
+            }
 
             if (filteredExpenses.Count == 0)
             {

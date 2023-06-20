@@ -22,5 +22,9 @@ namespace ExpenseTracker.Filters
 
         public bool FilterByPaymentMethod { get; set; }
         public string PaymentMethod { get; set; }
+
+        public bool FilterByAmountRange { get; set; }
+        public decimal MinAmount { get; set; }
+        public decimal MaxAmount { get; set; }
     }
 }

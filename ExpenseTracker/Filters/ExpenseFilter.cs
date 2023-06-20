@@ -12,15 +12,54 @@ namespace ExpenseTracker.Filters
     {
         public List<Expense> FilterExpenses(List<Expense> expenses, FilterOptions filterOptions)
         {
-            List<Expense> filteredExpenses = new List<Expense>();
+            List<Func<Expense, bool>> filters = new List<Func<Expense, bool>>();
 
-            foreach (Expense expense in expenses)
+            if (filterOptions.FilterById)
             {
-                if (IsExpenseMatchingFilters(expense, filterOptions))
-                {
-                    filteredExpenses.Add(expense);
-                }
+                filters.Add(expense => expense.Id == filterOptions.Id);
             }
+
+            if (filterOptions.FilterByAmount)
+            {
+                filters.Add(expense => expense.Amount == filterOptions.Amount);
+            }
+
+            if (filterOptions.FilterByDate)
+            {
+                filters.Add(expense => expense.Date == filterOptions.Date);
+            }
+
+            if (filterOptions.FilterByCategory)
+            {
+                filters.Add(expense => expense.Category == filterOptions.Category);
+            }
+
+            if (filterOptions.FilterByPaymentMethod)
+            {
+                filters.Add(expense => expense.PaymentMethod == filterOptions.PaymentMethod);
+            }
+
+            if (filterOptions.FilterByCategory)
+            {
+                filters.Add(expense => expense.Category.Equals(filterOptions.Category, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (filterOptions.FilterByPaymentMethod)
+            {
+                filters.Add(expense => expense.PaymentMethod.Equals(filterOptions.PaymentMethod, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (filterOptions.FilterByAmount)
+            {
+                filters.Add(expense => expense.Amount == filterOptions.Amount);
+            }
+
+            if (filterOptions.FilterByAmountRange)
+            {
+                filters.Add(expense => expense.Amount >= filterOptions.MinAmount && expense.Amount <= filterOptions.MaxAmount);
+            }
+
+            List<Expense> filteredExpenses = expenses.Where(expense => filters.All(filter => filter(expense))).ToList();
 
             return filteredExpenses;
         }
