@@ -13,18 +13,20 @@ namespace ExpenseTracker.Filters
 
         public bool FilterByAmount { get; set; }
         public decimal Amount { get; set; }
+        public bool FilterByAmountRange { get; set; }
+        public decimal MinAmount { get; set; }
+        public decimal MaxAmount { get; set; }
 
         public bool FilterByDate { get; set; }
         public DateTime Date { get; set; }
+        public bool FilterByDateRange { get; set; }
+        public DateTime MinDate { get; set; }
+        public DateTime MaxDate { get; set; }
 
         public bool FilterByCategory { get; set; }
         public string Category { get; set; }
 
         public bool FilterByPaymentMethod { get; set; }
-        public string PaymentMethod { get; set; }
-
-        public bool FilterByAmountRange { get; set; }
-        public decimal MinAmount { get; set; }
-        public decimal MaxAmount { get; set; }
+        public string PaymentMethod { get; set; } 
     }
 }
