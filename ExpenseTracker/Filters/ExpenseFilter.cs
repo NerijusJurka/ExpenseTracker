@@ -24,9 +24,19 @@ namespace ExpenseTracker.Filters
                 filters.Add(expense => expense.Amount == filterOptions.Amount);
             }
 
+            if (filterOptions.FilterByAmountRange)
+            {
+                filters.Add(expense => expense.Amount >= filterOptions.MinAmount && expense.Amount <= filterOptions.MaxAmount);
+            }
+
             if (filterOptions.FilterByDate)
             {
                 filters.Add(expense => expense.Date == filterOptions.Date);
+            }
+
+            if (filterOptions.FilterByDateRange)
+            {
+                filters.Add(expense => expense.Date >= filterOptions.MinDate && expense.Date <= filterOptions.MaxDate);
             }
 
             if (filterOptions.FilterByCategory)
@@ -53,12 +63,6 @@ namespace ExpenseTracker.Filters
             {
                 filters.Add(expense => expense.Amount == filterOptions.Amount);
             }
-
-            if (filterOptions.FilterByAmountRange)
-            {
-                filters.Add(expense => expense.Amount >= filterOptions.MinAmount && expense.Amount <= filterOptions.MaxAmount);
-            }
-
             List<Expense> filteredExpenses = expenses.Where(expense => filters.All(filter => filter(expense))).ToList();
 
             return filteredExpenses;
