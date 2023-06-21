@@ -217,7 +217,7 @@ namespace ExpenseTracker.UI
             ExpenseFilter expenseFilter = new ExpenseFilter();
             List<Expense> filteredExpenses;
 
-            if (filterOptions.FilterByAmountRange)
+            if (filterOptions.FilterByAmountRange || filterOptions.FilterByDateRange)
             {
                 filteredExpenses = expenseFilter.FilterExpenses(expenses, filterOptions);
             }
