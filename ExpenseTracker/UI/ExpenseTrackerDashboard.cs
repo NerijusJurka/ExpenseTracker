@@ -28,7 +28,8 @@ namespace ExpenseTracker.UI
             Console.WriteLine("4. Delete Expense");
             Console.WriteLine("5. Add Income");
             Console.WriteLine("6. View Incomes");
-            Console.WriteLine("7. Logout");
+            Console.WriteLine("7. Delete Incomes");
+            Console.WriteLine("8. Logout");
 
             int choice;
             bool isValidChoice = false;
@@ -38,7 +39,7 @@ namespace ExpenseTracker.UI
                 Console.Write("Enter your choice: ");
                 isValidChoice = int.TryParse(Console.ReadLine(), out choice);
 
-                if (!isValidChoice || choice < 1 || choice > 7)
+                if (!isValidChoice || choice < 1 || choice > 8)
                 {
                     Console.WriteLine("Invalid choice. Please try again.");
                 }
@@ -50,6 +51,7 @@ namespace ExpenseTracker.UI
             var deleteExpenses = new DeleteExpenses(connectionString);
             var addIncome = new IncomeManager(connectionString);
             var viewIncome = new ViewIncomes(connectionString);
+            var deleteIncome = new DeleteIncome(connectionString);
             var logOut = new Logout();
 
             switch (choice)
@@ -73,6 +75,9 @@ namespace ExpenseTracker.UI
                     viewIncome.DisplayIncomes(user);
                     break;
                 case 7:
+                    deleteIncome.DeleteIncomes(user);
+                    break;
+                case 8:
                     logOut.PerformLogout();
                     break;
             }
