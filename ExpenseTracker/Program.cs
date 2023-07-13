@@ -1,4 +1,5 @@
 ﻿using System;
+using ExpenseTracker.Data;
 using ExpenseTracker.UI;
 
 namespace ExpenseTracker
@@ -53,7 +54,12 @@ namespace ExpenseTracker
             Console.Write("Enter password: ");
             string password = Console.ReadLine();
 
-            Login login = new Login();
+            Console.Write("Enter the connection string: ");
+            string connectionString = Console.ReadLine();
+
+            DatabaseManager databaseManager = new DatabaseManager(connectionString);
+
+            Login login = new Login(databaseManager.GetConnectionString());
             login.SignIn(username, password);
         }
 
@@ -63,7 +69,12 @@ namespace ExpenseTracker
             Console.WriteLine("Registration");
             Console.WriteLine("============");
 
-            Registration registration = new Registration();
+            Console.Write("Enter the connection string: ");
+            string connectionString = Console.ReadLine();
+
+            DatabaseManager databaseManager = new DatabaseManager(connectionString);
+
+            Registration registration = new Registration(databaseManager.GetConnectionString());
             registration.Signup();
         }
     }
