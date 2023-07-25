@@ -1,10 +1,6 @@
 ﻿using ExpenseTracker.Model;
 using Microsoft.Data.SqlClient;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Data;
 
 namespace ExpenseTracker.DataAccess
 {
@@ -19,12 +15,12 @@ namespace ExpenseTracker.DataAccess
 
         public List<Expense> RetrieveExpenses(User user)
         {
-            string query = "SELECT Id, Description, Amount, Date, Category, PaymentMethod FROM Expenses WHERE UserId = @UserId";
-
-            List<Expense> expenses = new List<Expense>();
+            var expenses = new List<Expense>();
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
+                string query = "SELECT * FROM Expenses WHERE UserId = @UserId";
+
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@UserId", user.Id);
@@ -32,29 +28,21 @@ namespace ExpenseTracker.DataAccess
                     try
                     {
                         connection.Open();
-                        SqlDataReader reader = command.ExecuteReader();
-
-                        while (reader.Read())
+                        using (SqlDataReader reader = command.ExecuteReader())
                         {
-                            int expenseId = (int)reader["Id"];
-                            string description = (string)reader["Description"];
-                            decimal amount = (decimal)reader["Amount"];
-                            DateTime date = (DateTime)reader["Date"];
-                            string category = (string)reader["Category"];
-                            string paymentMethod = (string)reader["PaymentMethod"];
-
-                            Expense expense = new Expense
+                            while (reader.Read())
                             {
-                                Id = expenseId,
-                                Description = description,
-                                Amount = amount,
-                                Date = date,
-                                UserId = user.Id,
-                                Category = category,
-                                PaymentMethod = paymentMethod
-                            };
-
-                            expenses.Add(expense);
+                                var expense = new Expense(
+                                    (int)reader["Id"],
+                                    (string)reader["Description"],
+                                    (decimal)reader["Amount"],
+                                    (DateTime)reader["Date"],
+                                    (int)reader["UserId"],
+                                    (string)reader["Category"],
+                                    (string)reader["PaymentMethod"]
+                                );
+                                expenses.Add(expense);
+                            }
                         }
                     }
                     catch (Exception ex)
