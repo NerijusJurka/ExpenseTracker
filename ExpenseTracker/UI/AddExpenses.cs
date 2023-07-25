@@ -43,15 +43,7 @@ namespace ExpenseTracker.UI
             Console.WriteLine("Enter payment method: ");
             string paymentMethod = Console.ReadLine();
 
-            Expense expense = new Expense
-            {
-                Description = description,
-                Amount = amount,
-                Date = date,
-                UserId = user.Id,
-                Category = category,
-                PaymentMethod = paymentMethod
-            };
+            Expense expense = new Expense(0, description, amount, date, user.Id, category, paymentMethod);
 
             try
             {
@@ -62,8 +54,6 @@ namespace ExpenseTracker.UI
             {
                 Console.WriteLine($"Error saving expense: {ex.Message}");
             }
-
-            Console.WriteLine("Expense added successfully.");
 
             // Display the updated list of expenses after saving
             var viewExpenses = new ViewExpenses(connectionString);
