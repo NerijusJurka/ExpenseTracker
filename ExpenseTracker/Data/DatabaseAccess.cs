@@ -1,6 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,37 +10,36 @@ namespace ExpenseTracker.Data
 {
     public abstract class DatabaseAccess
     {
-        protected readonly string connectionString;
+        protected readonly IDbConnection connection;
 
-        protected DatabaseAccess(string connectionString)
+        public string ConnectionString { get { return connection.ConnectionString; } }
+
+        protected DatabaseAccess(IDbConnection connection)
         {
-            this.connectionString = connectionString;
+            this.connection = connection ?? throw new ArgumentNullException(nameof(connection));
         }
 
-        protected T ExecuteScalar<T>(string query, SqlParameter parameter)
+        protected async Task<T> ExecuteScalarAsync<T>(string query, params SqlParameter[] parameters)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (SqlCommand command = new SqlCommand(query, (SqlConnection)connection))
             {
-                using (SqlCommand command = new SqlCommand(query, connection))
+                if (parameters != null)
                 {
-                    if (parameter != null)
-                    {
-                        command.Parameters.Add(parameter);
-                    }
+                    command.Parameters.AddRange(parameters);
+                }
 
-                    try
-                    {
-                        connection.Open();
-                        return (T)command.ExecuteScalar();
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Error: {ex.Message}");
-                    }
+                try
+                {
+                    await ((SqlConnection)connection).OpenAsync();
+                    object result = await command.ExecuteScalarAsync();
+                    return (T)Convert.ChangeType(result, typeof(T));
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error: {ex.Message}");
+                    return default(T);
                 }
             }
-
-            return default(T);
         }
     }
 }
