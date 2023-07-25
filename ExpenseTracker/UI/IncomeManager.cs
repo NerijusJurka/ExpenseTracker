@@ -32,7 +32,7 @@ namespace ExpenseTracker.UI
 
             Console.WriteLine("Enter income frequency (Weekly/Monthly/Annually): ");
             string frequencyInput = Console.ReadLine();
-            FrequencyType frequency;
+            Income.FrequencyType frequency;
             while (!Enum.TryParse(frequencyInput, out frequency))
             {
                 Console.WriteLine("Invalid frequency. Please enter a valid frequency (Weekly/Monthly/Annually).");
@@ -48,14 +48,7 @@ namespace ExpenseTracker.UI
                 Console.Write("Enter income date (YYYY-MM-DD): ");
             }
 
-            Income income = new Income
-            {
-                Description = description,
-                Amount = amount,
-                Frequency = frequency,
-                Date = date,
-                UserId = user.Id
-            };
+            Income income = new Income(0, description, amount, frequency, date, user.Id);
 
             SaveIncome(income);
 
