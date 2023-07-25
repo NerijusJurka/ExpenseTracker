@@ -1,17 +1,34 @@
 ﻿using System;
 using ExpenseTracker.Data;
+using ExpenseTracker.Services;
 using ExpenseTracker.UI;
+using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Configuration;
 
 namespace ExpenseTracker
 {
     class Program
     {
-        static void Main(string[] args)
+        public static IConfigurationRoot Configuration { get; set; }
+        public static async Task Main(string[] args)
         {
-            DisplayMainMenu();
+            var builder = new ConfigurationBuilder()
+        .SetBasePath(Directory.GetCurrentDirectory())
+        .AddJsonFile("appsettings.json");
+
+            Configuration = builder.Build();
+
+            var connectionString = Configuration.GetSection("ConnectionSettings:ConnectionString").Value;
+            var connectionSettings = new ConnectionSettings { ConnectionString = connectionString };
+            var options = Options.Create(connectionSettings);
+
+            DatabaseManager databaseManager = new DatabaseManager(options);
+            databaseManager.EnsureDatabaseTableExists();
+
+            await DisplayMainMenu();
         }
 
-        public static void DisplayMainMenu()
+        public static async Task DisplayMainMenu()
         {
             Console.Clear();
             Console.WriteLine("Expense Tracker");
@@ -26,10 +43,10 @@ namespace ExpenseTracker
             switch (userInput)
             {
                 case "1":
-                    PerformLogin();
+                    await PerformLogin();
                     break;
                 case "2":
-                    PerformRegistration();
+                    await PerformRegistration();
                     break;
                 case "3":
                     Console.WriteLine("Exiting...");
@@ -42,7 +59,7 @@ namespace ExpenseTracker
             Console.ReadLine();
         }
 
-        private static void PerformLogin()
+        private static async Task PerformLogin()
         {
             Console.Clear();
             Console.WriteLine("Login");
@@ -54,28 +71,37 @@ namespace ExpenseTracker
             Console.Write("Enter password: ");
             string password = Console.ReadLine();
 
-            Console.Write("Enter the connection string: ");
-            string connectionString = Console.ReadLine();
+            string connectionString = Configuration.GetSection("ConnectionSettings:ConnectionString").Value;
 
-            DatabaseManager databaseManager = new DatabaseManager(connectionString);
+            var connectionSettings = new ConnectionSettings { ConnectionString = connectionString };
+            var options = Options.Create(connectionSettings);
 
-            Login login = new Login(databaseManager.GetConnectionString());
-            login.SignIn(username, password);
+            IDatabaseAccess databaseAccess = new DatabaseManager(options);
+            var passwordHasher = new PasswordHasher();
+            IUserService userService = new UserService(databaseAccess);
+
+            Login login = new Login(username, password, userService, passwordHasher);
+            login.SignInAsync(username, password);
         }
 
-        private static void PerformRegistration()
+        private static async Task PerformRegistration()
         {
             Console.Clear();
             Console.WriteLine("Registration");
             Console.WriteLine("============");
 
-            Console.Write("Enter the connection string: ");
-            string connectionString = Console.ReadLine();
+            var connectionString = Configuration.GetSection("ConnectionSettings:ConnectionString").Value;
 
-            DatabaseManager databaseManager = new DatabaseManager(connectionString);
+            var connectionSettings = new ConnectionSettings { ConnectionString = connectionString };
+            var options = Options.Create(connectionSettings);
 
-            Registration registration = new Registration(databaseManager.GetConnectionString());
-            registration.Signup();
+            IDatabaseAccess databaseAccess = new DatabaseManager(options);
+
+            var passwordHasher = new PasswordHasher();
+            IUserService userService = new UserService(databaseAccess);
+
+            Registration registration = new Registration(connectionString, userService, passwordHasher);
+            await registration.SignUpAsync();
         }
     }
 }
