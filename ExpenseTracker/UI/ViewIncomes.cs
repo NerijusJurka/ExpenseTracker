@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static ExpenseTracker.Model.Income;
 
 namespace ExpenseTracker.UI
 {
@@ -73,15 +74,7 @@ namespace ExpenseTracker.UI
                             FrequencyType frequency = Enum.Parse<FrequencyType>(frequencyString);
                             DateTime date = (DateTime)reader["Date"];
 
-                            Income income = new Income
-                            {
-                                Id = incomeId,
-                                Description = description,
-                                Amount = amount,
-                                Frequency = frequency,
-                                Date = date,
-                                UserId = user.Id
-                            };
+                            Income income = new Income(incomeId, description, amount, frequency, date, user.Id);
 
                             incomes.Add(income);
                         }
