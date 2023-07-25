@@ -163,13 +163,7 @@ namespace UnitTest
                                 string fetchedPassword = (string)reader["PasswordHash"];
                                 string fetchedEmail = (string)reader["Email"];
 
-                                User user = new User
-                                {
-                                    Id = userId,
-                                    Username = fetchedUsername,
-                                    PasswordHash = fetchedPassword,
-                                    Email = fetchedEmail
-                                };
+                                User user = new User(userId, fetchedUsername, fetchedPassword, fetchedEmail, null, false);
 
                                 return user;
                             }
