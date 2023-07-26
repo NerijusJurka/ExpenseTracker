@@ -19,7 +19,7 @@ namespace ExpenseTracker.Services
 
         public async Task<User> GetUserByUsernameAsync(string username)
         {
-            string query = "SELECT Id, Username, PasswordHash, PasswordSalt, Email FROM Users WHERE Username = @Username";
+            string query = "SELECT Id, Username, PasswordHash, PasswordSalt, Email, IsEmailVerified FROM Users WHERE Username = @Username";
             SqlParameter parameter = new SqlParameter("@Username", username);
 
             using (SqlConnection connection = new SqlConnection(databaseAccess.ConnectionString))

@@ -24,17 +24,18 @@ namespace ExpenseTracker.Data
                 connection.Open();
 
                 string checkTableExistsCommandText = @"
-                IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Users]') AND type in (N'U'))
-                BEGIN
-                    CREATE TABLE [dbo].[Users](
-                        [Id] [int] IDENTITY(1,1) NOT NULL,
-                        [Username] [nvarchar](50) NOT NULL,
-                        [PasswordHash] [nvarchar](128) NOT NULL,
-                        [PasswordSalt] [nvarchar](128) NOT NULL,
-                        [Email] [nvarchar](50) NOT NULL,
-                        [IsActive] [bit] NOT NULL
-                    )
-                END";
+        IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Users]') AND type in (N'U'))
+        BEGIN
+            CREATE TABLE [dbo].[Users](
+                [Id] [int] IDENTITY(1,1) NOT NULL,
+                [Username] [nvarchar](50) NOT NULL,
+                [PasswordHash] [nvarchar](128) NOT NULL,
+                [PasswordSalt] [nvarchar](128) NOT NULL,
+                [Email] [nvarchar](50) NOT NULL,
+                [IsEmailVerified] [bit] NOT NULL,
+                [IsActive] [bit] NOT NULL
+            )
+        END";
 
                 using (var command = new SqlCommand(checkTableExistsCommandText, connection))
                 {
