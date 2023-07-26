@@ -55,7 +55,6 @@ public class Registration
 
             } while (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(email));
 
-            // Generate password hash
             string passwordSalt = passwordHasher.GenerateSalt();
 
             string passwordHash = passwordHasher.HashPassword(password, passwordSalt);
@@ -66,19 +65,18 @@ public class Registration
 
             Console.WriteLine("User registered successfully.");
             Console.WriteLine("Redirecting to the main menu...");
-            Thread.Sleep(5000); // Delay for 5 seconds (5000 milliseconds)
+            Thread.Sleep(5000);
             Console.Clear();
             Program.DisplayMainMenu();
         }
         catch(Exception ex)
         {
             Console.WriteLine("An error occurred during registration: " + ex.ToString());
-            Console.ReadLine(); // Wait for the user to press Enter before closing the console
+            Console.ReadLine();
         }
     }
     private bool IsValidEmail(string email)
     {
-        // Email validation using regular expression
         string pattern = @"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$";
         return Regex.IsMatch(email, pattern);
     }
@@ -92,7 +90,6 @@ public class Registration
         {
             key = Console.ReadKey(true);
 
-            // Append asterisk (*) character to password
             if (key.Key != ConsoleKey.Backspace && key.Key != ConsoleKey.Enter)
             {
                 password.Append(key.KeyChar);
