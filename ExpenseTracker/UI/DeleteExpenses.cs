@@ -12,7 +12,7 @@ namespace ExpenseTracker.UI
     public class DeleteExpenses
     {
         private readonly string connectionString;
-        private readonly ExpenseDataAccess expenseDataAccess;
+        private readonly ExpenseDataHandler expenseDataAccess;
 
         public DeleteExpenses(string connectionString)
         {

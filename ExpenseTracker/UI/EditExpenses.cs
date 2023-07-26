@@ -12,7 +12,7 @@ namespace ExpenseTracker.UI
     public class EditExpenses
     {
         private readonly string connectionString;
-        private readonly ExpenseDataAccess expenseDataAccess;
+        private readonly ExpenseDataHandler expenseDataAccess;
 
         public EditExpenses(string connectionString)
         {
