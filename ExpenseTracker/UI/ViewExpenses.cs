@@ -1,74 +1,36 @@
 ﻿using ExpenseTracker.DataAccess;
 using ExpenseTracker.Filters;
 using ExpenseTracker.Model;
-using Microsoft.Data.SqlClient;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ExpenseTracker.Services;
 
 namespace ExpenseTracker.UI
 {
     public class ViewExpenses
     {
+        private ExpenseFilterHandler _expenseFilterHandler;
         private readonly string connectionString;
-        private readonly ExpenseDataAccess expenseDataAccess;
+        private readonly ExpenseDataHandler expenseDataAccess;
 
         public ViewExpenses(string connectionString)
         {
             this.connectionString = connectionString;
-            this.expenseDataAccess = new ExpenseDataAccess(connectionString);
+            this.expenseDataAccess = new ExpenseDataHandler(connectionString);
+            _expenseFilterHandler = new ExpenseFilterHandler(new ExpenseFilter(), ApplyFilteringAndDisplay, ShowFilteringMenu);
         }
 
         public void DisplayExpenses(User user)
         {
             List<Expense> expenses = expenseDataAccess.RetrieveExpenses(user);
 
-            if (expenses.Count == 0)
+            if (!expenses.Any())
             {
-                Console.WriteLine("No expenses found.");
-                Console.WriteLine("Press any key to go back to the main menu.");
-                Console.ReadKey();
-
-                var expenseTrackerDashboard = new ExpenseTrackerDashboard(connectionString);
-                expenseTrackerDashboard.DisplayDashboard(user);
+                NotifyNoExpensesAndReturnToMainMenu(user);
                 return;
             }
 
-            Console.Clear();
-            Console.WriteLine("Expense List");
-            Console.WriteLine("============");
+            DisplayExpenseList("Expense List", expenses);
 
-            foreach (Expense expense in expenses)
-            {
-                Console.WriteLine($"ID: {expense.Id}");
-                Console.WriteLine($"Description: {expense.Description}");
-                Console.WriteLine($"Amount: {expense.Amount:C}");
-                Console.WriteLine($"Date: {expense.Date}");
-                Console.WriteLine($"Category: {expense.Category}");
-                Console.WriteLine($"Payment Method: {expense.PaymentMethod}");
-                Console.WriteLine("-------------------");
-            }
-
-            Console.WriteLine();
-            Console.WriteLine("Select an option:");
-            Console.WriteLine("1. Go to the Filtering Menu");
-            Console.WriteLine("2. Go back to the Main Menu");
-
-            int choice;
-            bool isValidChoice;
-
-            do
-            {
-                Console.Write("Enter your choice: ");
-                isValidChoice = int.TryParse(Console.ReadLine(), out choice);
-
-                if (!isValidChoice || choice < 1 || choice > 2)
-                {
-                    Console.WriteLine("Invalid choice. Please try again.");
-                }
-            } while (!isValidChoice || choice < 1 || choice > 2);
+            int choice = GetUserChoice(new[] { "Go to the Filtering Menu", "Go back to the Main Menu" });
 
             switch (choice)
             {
@@ -76,175 +38,51 @@ namespace ExpenseTracker.UI
                     ShowFilteringMenu(user, expenses);
                     break;
                 case 2:
-                    var expenseTrackerDashboard = new ExpenseTrackerDashboard(connectionString);
-                    expenseTrackerDashboard.DisplayDashboard(user);
+                    ReturnToMainMenu(user);
                     break;
             }
         }
 
         private void ShowFilteringMenu(User user, List<Expense> expenses)
         {
-            Console.Clear();
-            Console.WriteLine("Filtering Menu");
-            Console.WriteLine("==============");
-            Console.WriteLine("1. Filter by ID");
-            Console.WriteLine("2. Filter by Amount Range");
-            Console.WriteLine("3. Filter by Date");
-            Console.WriteLine("4. Filter by Category");
-            Console.WriteLine("5. Filter by Payment Method");
-            Console.WriteLine("6. Return to Main Menu");
-            Console.WriteLine();
+            DisplayHeader("Filtering Menu");
 
-            int choice;
-            bool isValidChoice;
-
-            do
-            {
-                Console.Write("Enter your choice: ");
-                isValidChoice = int.TryParse(Console.ReadLine(), out choice);
-
-                if (!isValidChoice || choice < 1 || choice > 6)
-                {
-                    Console.WriteLine("Invalid choice. Please try again.");
-                }
-            } while (!isValidChoice || choice < 1 || choice > 6);
+            int choice = GetUserChoice(new[] { "Filter by ID", "Filter by Amount Range", "Filter by Date", "Filter by Category", "Filter by Payment Method", "Return to Main Menu" });
 
             switch (choice)
             {
                 case 1:
-                    Console.Write("Enter expense ID: ");
-                    int expenseId;
-                    if (int.TryParse(Console.ReadLine(), out expenseId))
-                    {
-                        FilterOptions filterOptions = new FilterOptions
-                        {
-                            FilterById = true,
-                            Id = expenseId
-                        };
-
-                        ApplyFilteringAndDisplay(expenses, filterOptions, user);
-                    }
-                    else
-                    {
-                        Console.WriteLine("Invalid expense ID entered.");
-                        ShowFilteringMenu(user, expenses);
-                    }
+                    _expenseFilterHandler.FilterExpensesById(user, expenses);
                     break;
                 case 2:
-                    Console.Write("Enter minimum amount: ");
-                    decimal minAmount;
-                    if (decimal.TryParse(Console.ReadLine(), out minAmount))
-                    {
-                        Console.Write("Enter maximum amount: ");
-                        decimal maxAmount;
-                        if (decimal.TryParse(Console.ReadLine(), out maxAmount))
-                        {
-                            FilterOptions filterOptions = new FilterOptions
-                            {
-                                FilterByAmountRange = true,
-                                MinAmount = minAmount,
-                                MaxAmount = maxAmount
-                            };
-
-                            ApplyFilteringAndDisplay(expenses, filterOptions, user);
-                        }
-                        else
-                        {
-                            Console.WriteLine("Invalid maximum amount entered.");
-                            ShowFilteringMenu(user, expenses);
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine("Invalid minimum amount entered.");
-                        ShowFilteringMenu(user, expenses);
-                    }
+                    _expenseFilterHandler.FilterExpensesByAmountRange(user, expenses);
                     break;
                 case 3:
-                    Console.Write("Enter expense date (yyyy-MM-dd): ");
-                    DateTime expenseDate;
-                    if (DateTime.TryParse(Console.ReadLine(), out expenseDate))
-                    {
-                        FilterOptions filterOptions = new FilterOptions
-                        {
-                            FilterByDate = true,
-                            Date = expenseDate
-                        };
-
-                        ApplyFilteringAndDisplay(expenses, filterOptions, user);
-                    }
-                    else
-                    {
-                        Console.WriteLine("Invalid expense date entered.");
-                        ShowFilteringMenu(user, expenses);
-                    }
+                    _expenseFilterHandler.FilterExpensesByDate(user, expenses);
                     break;
                 case 4:
-                    Console.Write("Enter expense category: ");
-                    string expenseCategory = Console.ReadLine();
-                    FilterOptions filterOptionsCategory = new FilterOptions
-                    {
-                        FilterByCategory = true,
-                        Category = expenseCategory
-                    };
-
-                    ApplyFilteringAndDisplay(expenses, filterOptionsCategory, user);
+                    _expenseFilterHandler.FilterExpensesByCategory(user, expenses);
                     break;
                 case 5:
-                    Console.Write("Enter payment method: ");
-                    string paymentMethod = Console.ReadLine();
-                    FilterOptions filterOptionsPaymentMethod = new FilterOptions
-                    {
-                        FilterByPaymentMethod = true,
-                        PaymentMethod = paymentMethod
-                    };
-
-                    ApplyFilteringAndDisplay(expenses, filterOptionsPaymentMethod, user);
+                    _expenseFilterHandler.FilterExpensesByPaymentMethod(user, expenses);
                     break;
                 case 6:
-                    var expenseTrackerDashboard = new ExpenseTrackerDashboard(connectionString);
-                    expenseTrackerDashboard.DisplayDashboard(user);
-                    break;
-                default:
-                    Console.WriteLine("Invalid choice entered.");
-                    ShowFilteringMenu(user, expenses);
+                    ReturnToMainMenu(user);
                     break;
             }
         }
 
         private void ApplyFilteringAndDisplay(List<Expense> expenses, FilterOptions filterOptions, User user)
         {
-            ExpenseFilter expenseFilter = new ExpenseFilter();
-            List<Expense> filteredExpenses;
+            List<Expense> filteredExpenses = new ExpenseFilter().FilterExpenses(expenses, filterOptions);
 
-            if (filterOptions.FilterByAmountRange || filterOptions.FilterByDateRange)
-            {
-                filteredExpenses = expenseFilter.FilterExpenses(expenses, filterOptions);
-            }
-            else
-            {
-                filteredExpenses = expenseFilter.FilterExpenses(expenses, filterOptions);
-            }
-
-            if (filteredExpenses.Count == 0)
+            if (!filteredExpenses.Any())
             {
                 Console.WriteLine("No expenses found.");
             }
             else
             {
-                Console.WriteLine("Filtered Expense List");
-                Console.WriteLine("====================");
-
-                foreach (Expense expense in filteredExpenses)
-                {
-                    Console.WriteLine($"ID: {expense.Id}");
-                    Console.WriteLine($"Description: {expense.Description}");
-                    Console.WriteLine($"Amount: {expense.Amount:C}");
-                    Console.WriteLine($"Date: {expense.Date}");
-                    Console.WriteLine($"Category: {expense.Category}");
-                    Console.WriteLine($"Payment Method: {expense.PaymentMethod}");
-                    Console.WriteLine("-------------------");
-                }
+                DisplayExpenseList("Filtered Expense List", filteredExpenses);
             }
 
             Console.WriteLine();
@@ -253,5 +91,71 @@ namespace ExpenseTracker.UI
 
             ShowFilteringMenu(user, expenses);
         }
+        private void DisplayExpenseList(string header, List<Expense> expenses)
+        {
+            Console.Clear();
+            DisplayHeader(header);
+
+            foreach (Expense expense in expenses)
+            {
+                DisplayExpense(expense);
+            }
+        }
+
+        private void DisplayExpense(Expense expense)
+        {
+            Console.WriteLine($"ID: {expense.Id}");
+            Console.WriteLine($"Description: {expense.Description}");
+            Console.WriteLine($"Amount: {expense.Amount:C}");
+            Console.WriteLine($"Date: {expense.Date}");
+            Console.WriteLine($"Category: {expense.Category}");
+            Console.WriteLine($"Payment Method: {expense.PaymentMethod}");
+            Console.WriteLine("-------------------");
+        }
+
+        private void DisplayHeader(string header)
+        {
+            Console.WriteLine($"{header}");
+            Console.WriteLine(new string('=', header.Length));
+        }
+
+        private void ReturnToMainMenu(User user)
+        {
+            var expenseTrackerDashboard = new ExpenseTrackerDashboard(connectionString);
+            expenseTrackerDashboard.DisplayDashboard(user);
+        }
+
+        private void NotifyNoExpensesAndReturnToMainMenu(User user)
+        {
+            Console.WriteLine("No expenses found.");
+            Console.WriteLine("Press any key to go back to the main menu.");
+            Console.ReadKey();
+            ReturnToMainMenu(user);
+        }
+
+        private int GetUserChoice(string[] options)
+        {
+            for (int i = 0; i < options.Length; i++)
+            {
+                Console.WriteLine($"{i + 1}. {options[i]}");
+            }
+
+            int choice;
+            bool isValidChoice;
+
+            do
+            {
+                Console.Write("Enter your choice: ");
+                isValidChoice = int.TryParse(Console.ReadLine(), out choice);
+
+                if (!isValidChoice || choice < 1 || choice > options.Length)
+                {
+                    Console.WriteLine("Invalid choice. Please try again.");
+                }
+            } while (!isValidChoice || choice < 1 || choice > options.Length);
+
+            return choice;
+        }
+        
     }
 }
